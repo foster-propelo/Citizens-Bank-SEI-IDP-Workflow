@@ -1,0 +1,10 @@
+proxy:
+  endpoints:
+    /sei:
+      target: https://app.harness.io/gateway/sei/api
+      pathRewrite:
+        /api/proxy/sei/?: /
+      headers:
+        x-api-key: ${PROXY_SEI_API_KEY} #This needs to be an SEI admin key
+        harness-account: YOUR_ACCOUNT_ID_HERE
+        Content-Type: application/json

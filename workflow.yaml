@@ -1,0 +1,127 @@
+apiVersion: harness.io/v1
+kind: Workflow
+name: SEI 2-0 Team Setup Citizens_Prod
+identifier: SEI_20_Team_Setup_Citizens_Prod
+type: workflow
+owner: group:account/Foster_Clark
+metadata:
+  description: Citizens Auto-Fill Flow
+spec:
+  output:
+    links:
+      - title: Pipeline Details
+        url: ${{ steps.trigger.output.PipelineUrl }}
+  lifecycle: automation
+  parameters:
+    - title: Team Selection
+      required:
+        - team
+      properties:
+        token:
+          title: Harness Token
+          type: string
+          ui:widget: password
+          ui:field: HarnessAuthToken
+        team:
+          title: SEI Team
+          type: string
+          description: Select the team to populate
+          ui:field: HarnessEntitySelector
+          ui:options:
+            path: /sei/api/v2/teams/list
+            method: POST
+            params:
+              orgIdentifier: cfg_enterprise
+              projectIdentifier: SEI_SEI_00000
+              page: "0"
+              pageSize: "5000"
+            body:
+              searchKey: orgTreeName
+              searchValue: Custom
+            arraySelector: items
+            valueSelector: refId
+            labelSelector: displayName
+            title: Select Scrum Team
+            description: Select the Scrum Team That You Want To Set Up
+            placeholder: Search teams
+        project:
+          title: Jira Project
+          type: array
+          items:
+            type: string
+          description: Select one or more Jira projects
+          ui:field: HarnessEntitySelector
+          ui:options:
+            path: /sei/api/v2/integrations/1/properties/values
+            method: GET
+            params:
+              property: im_project
+              orgTreeId: "4"
+            arraySelector: values
+            title: Select Jira projects
+            description: Select the Jira Project your Scrum Team Works On.
+            placeholder: Search projects
+        pipeline_name:
+          title: Pipeline
+          type: array
+          items:
+            type: string
+          description: Select one or more pipelines
+          ui:field: HarnessEntitySelector
+          ui:options:
+            path: /sei/api/v2/integrations/16/properties/values
+            method: GET
+            params:
+              property: cd_pipeline_name
+              orgTreeId: "4"
+            arraySelector: values
+            title: Select Deployment Jenkins pipelines
+            description: Select one or more pipelines that you use to deploy.
+            placeholder: Search pipelines
+        target_branch:
+          title: Pipeline Branch
+          type: array
+          items:
+            type: string
+          description: Select one or more target branches
+          ui:field: HarnessEntitySelector
+          ui:options:
+            path: /sei/api/v2/integrations/16/properties/values
+            method: GET
+            params:
+              property: cd_branch
+              orgTreeId: "4"
+            arraySelector: values
+            title: Select Pipeline Production branches
+            description: Select one or more Production branches that you use to deploy to Production.
+            placeholder: Search branches
+        business_service:
+          title: Business Service
+          type: array
+          items:
+            type: string
+          description: Select one or more business services
+          ui:field: HarnessEntitySelector
+          ui:options:
+            path: /sei/api/v2/integrations/14/properties/values
+            method: GET
+            params:
+              property: itsm_business_service
+              orgTreeId: "4"
+            arraySelector: values
+            title: Select SNOW Business Service
+            description: Select Your Service Now Business Service(s)
+            placeholder: Search business services
+  steps:
+    - id: trigger
+      name: Creating your application
+      action: trigger:harness-custom-pipeline
+      input:
+        url: https://app.harness.io/ng/account/AM8HCbDiTXGQNrTIhNl7qQ/all/orgs/default/projects/FosterSandbox/pipelines/SEI_Set_Team_Info/pipeline-studio/?repoIdentifier=null&branch=null&storeType=INLINE
+        inputset:
+          Team_Ref_ID: ${{ parameters.team }}
+          Jira_Project: ${{ parameters.project }}
+          Pipeline_Name: ${{ parameters.pipeline_name }}
+          SCM_Branch: ${{ parameters.target_branch }}
+          Business_Service: ${{ parameters.business_service }}
+        apikey: ${{ parameters.token }}

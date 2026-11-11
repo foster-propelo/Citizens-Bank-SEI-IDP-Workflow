@@ -37,7 +37,7 @@ pipeline:
                       if [ -n "${SCM_BRANCH:-}" ]; then args+=("--target-branch=$SCM_BRANCH"); fi
                       if [ -n "${BUSINESS_SERVICE:-}" ]; then args+=("--business-service=$BUSINESS_SERVICE"); fi
 
-                      python3 temp.py "${args[@]}"
+                      python3 Citizens_Prod_SEI_Teams.py "${args[@]}"
                     envVariables:
                       SEI_API_KEY: <+pipeline.variables.apikey>
                       HARNESS_ACCOUNT_ID: <+account.identifier>

@@ -1,0 +1,89 @@
+pipeline:
+  name: SEI Set Team Info
+  identifier: SEI_Set_Team_Info
+    projectIdentifier: YOUR_PROJECT_HERE
+  orgIdentifier: YOUR_ORG_HERE
+  tags: {}
+  stages:
+    - stage:
+        name: Run Python
+        identifier: Run_Python
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: false
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Set Team Info
+                  identifier: Set_Team_Info
+                  spec:
+                    shell: Bash
+                    command: |-
+                      set -euo pipefail
+                      python3 -m pip install --quiet --no-cache-dir requests
+                      args=(--team-ref-id "$TEAM_REF_ID")
+                      if [ -n "${JIRA_PROJECT:-}" ]; then args+=("--project=$JIRA_PROJECT"); fi
+                      if [ -n "${PIPELINE_NAME:-}" ]; then args+=("--pipeline=$PIPELINE_NAME"); fi
+                      if [ -n "${SCM_BRANCH:-}" ]; then args+=("--target-branch=$SCM_BRANCH"); fi
+                      if [ -n "${BUSINESS_SERVICE:-}" ]; then args+=("--business-service=$BUSINESS_SERVICE"); fi
+
+                      python3 temp.py "${args[@]}"
+                    envVariables:
+                      SEI_API_KEY: <+pipeline.variables.apikey>
+                      HARNESS_ACCOUNT_ID: <+account.identifier>
+                      TEAM_REF_ID: <+pipeline.variables.Team_Ref_ID>
+                      JIRA_PROJECT: <+pipeline.variables.Jira_Project>
+                      PIPELINE_NAME: <+pipeline.variables.Pipeline_Name>
+                      SCM_BRANCH: <+pipeline.variables.SCM_Branch>
+                      BUSINESS_SERVICE: <+pipeline.variables.Business_Service>
+        tags: {}
+  properties:
+    ci:
+      codebase:
+        repoName: SEI
+        build:
+          type: branch
+          spec:
+            branch: main
+        sparseCheckout: []
+  variables:
+    - name: Jira_Project
+      type: String
+      description: ""
+      required: false
+      value: <+input>
+    - name: SCM_Branch
+      type: String
+      description: ""
+      required: false
+      value: <+input>
+    - name: Pipeline_Name
+      type: String
+      description: ""
+      required: false
+      value: <+input>
+    - name: Team_Ref_ID
+      type: String
+      description: ""
+      required: false
+      value: <+input>
+    - name: Business_Service
+      type: String
+      description: ""
+      required: false
+      value: <+input>
+    - name: apikey
+      type: Secret
+      description: ""
+      required: false
+      value: account.Foster_Admin

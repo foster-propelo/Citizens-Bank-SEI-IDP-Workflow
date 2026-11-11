@@ -117,7 +117,7 @@ spec:
       name: Creating your application
       action: trigger:harness-custom-pipeline
       input:
-        url: https://app.harness.io/ng/account/AM8HCbDiTXGQNrTIhNl7qQ/all/orgs/default/projects/FosterSandbox/pipelines/SEI_Set_Team_Info/pipeline-studio/?repoIdentifier=null&branch=null&storeType=INLINE
+        url: YOUR_PIPELINE_URL_HERE
         inputset:
           Team_Ref_ID: ${{ parameters.team }}
           Jira_Project: ${{ parameters.project }}
